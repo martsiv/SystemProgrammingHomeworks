@@ -1,0 +1,14 @@
+﻿<Window x:Class="_02._2_Tasks_Find_duplicates.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_02._2_Tasks_Find_duplicates"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <StackPanel>
+        <Button x:Name="SourceDirectoryButton" Click="SourceDirectoryButton_Click">Select source directory</Button>
+        <Button x:Name="TargetDirectoryButton" Click="TargetDirectoryButton_Click">Select target directory</Button>
+        <Button x:Name="StartCopyButton" Click="StartCopyButton_Click">Start copy</Button>
+    </StackPanel>
+</Window>
