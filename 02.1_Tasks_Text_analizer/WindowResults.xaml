@@ -1,0 +1,49 @@
+﻿<Window x:Class="_02._1_Tasks_Text_analizer.WindowResults"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_02._1_Tasks_Text_analizer"
+        d:DataContext="{d:DesignInstance Type=local:Stata}" 
+
+        mc:Ignorable="d"
+        Title="WindowResults" Height="250" Width="500">
+    <Grid>
+        <Border BorderBrush="Black" BorderThickness="3" MinHeight="200">
+            <StackPanel>
+                <TextBlock FontSize="22" MinHeight="40" FontWeight="Bold" Foreground="DarkSlateBlue"  HorizontalAlignment="Center" VerticalAlignment="Top">Statistic</TextBlock>
+                <Border BorderThickness="1, 2, 1, 1" BorderBrush="Black">
+
+                    <UniformGrid>
+                        <TextBlock>Number of sentences:</TextBlock>
+                        <TextBlock Text="{Binding Sentences}"></TextBlock>
+                    </UniformGrid>
+                </Border>
+                <Border BorderThickness="1" BorderBrush="Black">
+                    <UniformGrid>
+                        <TextBlock>Number of characters:</TextBlock>
+                        <TextBlock Text="{Binding Symbols}"></TextBlock>
+                    </UniformGrid>
+                </Border>
+                <Border BorderThickness="1" BorderBrush="Black">
+                    <UniformGrid>
+                        <TextBlock>Number of words:</TextBlock>
+                        <TextBlock Text="{Binding Words}"></TextBlock>
+                    </UniformGrid>
+                </Border>
+                <Border BorderThickness="1" BorderBrush="Black">
+                    <UniformGrid>
+                        <TextBlock>Number of question sentences:</TextBlock>
+                        <TextBlock Text="{Binding QuestionSentences}"></TextBlock>
+                    </UniformGrid>
+                </Border>
+                <Border BorderThickness="1" BorderBrush="Black">
+                    <UniformGrid>
+                        <TextBlock>Number of exclamatory sentences:</TextBlock>
+                        <TextBlock Text="{Binding ExclamatorySentences}"></TextBlock>
+                    </UniformGrid>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
