@@ -33,13 +33,12 @@ namespace _02._1_Tasks_Text_analizer
         public string TextBeforeCalculating { get; set; }
         public Stata TextStatistic { get; set; } = new();
         private WindowResults windowResults;
-        private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource cancelTokenSource;
         private CancellationToken token;
 
         public MainWindow()
         {
             InitializeComponent();
-            token = cancelTokenSource.Token;
         }
 
         private void CalculateButton_Click(object sender, RoutedEventArgs e)
@@ -52,60 +51,56 @@ namespace _02._1_Tasks_Text_analizer
             if (!token.IsCancellationRequested)
                 cancelTokenSource.Cancel();
         }
-        private void Calculate()
+        private async Task Calculate()
         {
+            cancelTokenSource = new CancellationTokenSource();
+            token = cancelTokenSource.Token;
             TextStatistic = new Stata();
             TextBeforeCalculating = TextBoxMain.Text;
-            Task[] tasks = new Task[5];
+            var allTasks = new List<Task>();
+
             try
             {
                 if (CheckBoxSentences.IsChecked == true)
-                    tasks[0] = Task.Factory.StartNew(() => CalculateSentencesInText(TextBeforeCalculating), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+                    allTasks.Add(Task.Run(() => CalculateSentencesInText(TextBeforeCalculating), token));
                 if (CheckBoxSymbols.IsChecked == true)
-                    tasks[1] = Task.Factory.StartNew(() => CalculateSymbolsInText(TextBeforeCalculating), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+                    allTasks.Add(Task.Run(() => CalculateSymbolsInText(TextBeforeCalculating), token));
                 if (CheckBoxWords.IsChecked == true)
-                    tasks[2] = Task.Factory.StartNew(() => CalculateWordsInText(TextBeforeCalculating), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+                    allTasks.Add(Task.Run(() => CalculateWordsInText(TextBeforeCalculating), token));
                 if (CheckBoxQuestion.IsChecked == true)
-                    tasks[3] = Task.Factory.StartNew(() => CalculateQuestionSentencesInText(TextBeforeCalculating), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+                    allTasks.Add(Task.Run(() => CalculateQuestionSentencesInText(TextBeforeCalculating), token));
                 if (CheckBoxExclamatory.IsChecked == true)
-                    tasks[4] = Task.Factory.StartNew(() => CalculateExclamatorySentencesInText(TextBeforeCalculating), token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
-                //foreach (var task in tasks)
-                //   if (task is Task) 
-                //        task.Start();
-                foreach (var task in tasks)
-                    if (task is Task)
-                        task.Wait();
-            }
-            catch (AggregateException ae)
-            {
-                foreach (Exception e in ae.InnerExceptions)
+                    allTasks.Add(Task.Run(() => CalculateExclamatorySentencesInText(TextBeforeCalculating), token));
+
+                await Task.WhenAll(allTasks);
+
+                if (RadioButtonWindow.IsChecked == true)
                 {
-                    if (e is TaskCanceledException)
+                    windowResults = new WindowResults(TextStatistic);
+                    windowResults.Show();
+                }
+                else if (RadioButtonFile.IsChecked == true)
+                {
+                    using (StreamWriter writer = new StreamWriter(Path.Combine(projectDirectory, _filename), false))
+                    {
+                        writer.WriteLine(await CombineTextIntoFile());
+                        MessageBox.Show("Saved successfull!");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                    if (ex is TaskCanceledException)
                         MessageBox.Show("Stopped operation!");
                     else
-                        MessageBox.Show(e.Message);
-                }
+                        MessageBox.Show(ex.Message);
             }
             finally
             {
                 cancelTokenSource.Dispose();
             }
-
-            if (RadioButtonWindow.IsChecked == true)
-            {
-                windowResults = new WindowResults(TextStatistic);
-                windowResults.Show();
-            }
-            else if (RadioButtonFile.IsChecked == true)
-            {
-                using (StreamWriter writer = new StreamWriter(Path.Combine(projectDirectory, _filename), false))
-                {
-                    writer.WriteLine(CombineTextIntoFile());
-                    MessageBox.Show("Saved successfull!");
-                }
-            }
         }
-        private string CombineTextIntoFile()
+        private async Task<string> CombineTextIntoFile()
         {
             string result = "Number of sentences: " + TextStatistic.Sentences + "\n";
             result += "Number of characters:" + TextStatistic.Symbols + "\n";
@@ -115,7 +110,7 @@ namespace _02._1_Tasks_Text_analizer
             return result;
         }
 
-        private void CalculateSentencesInText(string text)
+        private async Task CalculateSentencesInText(string text)
         {
             string[] sentences = text.Split(new char[] { '.', '!', '?' }, StringSplitOptions.RemoveEmptyEntries);
             int count = sentences.Length;
@@ -130,7 +125,7 @@ namespace _02._1_Tasks_Text_analizer
             }
             TextStatistic.Sentences = count;
         }
-        private void CalculateWordsInText(string text)
+        private async Task CalculateWordsInText(string text)
         {
             // Розділіть текст на слова за допомогою пробілів і розділових знаків
             string[] words = text.Split(new char[] { ' ', ',', '.', '!', '?' }, StringSplitOptions.RemoveEmptyEntries);
@@ -148,7 +143,7 @@ namespace _02._1_Tasks_Text_analizer
             }
             TextStatistic.Words = count;
         }
-        private void CalculateSymbolsInText(string text)
+        private async Task CalculateSymbolsInText(string text)
         {
             // Створюємо масив символів пунктуації, які вас цікавлять
             char[] punctuationChars = { '.', ',', '!', '?', ';', ':', '(', ')', '[', ']', '{', '}', '<', '>', '"', '\'' };
@@ -169,7 +164,7 @@ namespace _02._1_Tasks_Text_analizer
 
             TextStatistic.Symbols = count;
         }
-        private void CalculateQuestionSentencesInText(string text)
+        private async Task CalculateQuestionSentencesInText(string text)
         {
             int counter = 0;
             string pattern = @"(?<=[.!?])";
@@ -185,7 +180,7 @@ namespace _02._1_Tasks_Text_analizer
             }
             TextStatistic.QuestionSentences = counter;
         }
-        private void CalculateExclamatorySentencesInText(string text)
+        private async Task CalculateExclamatorySentencesInText(string text)
         {
             int counter = 0;
             string pattern = @"(?<=[.!?])";
