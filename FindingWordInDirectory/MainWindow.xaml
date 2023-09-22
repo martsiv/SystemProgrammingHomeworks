@@ -1,0 +1,66 @@
+﻿<Window x:Class="FindingWordInDirectory.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FindingWordInDirectory"
+        d:DataContext="{d:DesignInstance Type=local:ViewModel}" 
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+
+    <Window.DataContext>
+        <local:ViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel>
+            <Label VerticalAlignment="Center">Key word:</Label>
+            <TextBox x:Name="KeyWordTextBox" Text="{Binding Keyword, Mode=TwoWay}" Margin="5"></TextBox>
+        </DockPanel>
+        <DockPanel Grid.Row="1">
+            <Label VerticalAlignment="Center">Directory:</Label>
+            <Button DockPanel.Dock="Right" x:Name="ChooseDirectoryButton" Margin="5" Padding="20,0" Command="{Binding ChooseDirectoryButton_Click}">Choose directory</Button>
+            <TextBox x:Name="directoryTextBox" Text="{Binding DirectoryName, Mode=TwoWay}" Margin="5"></TextBox>
+        </DockPanel>
+        <Button Grid.Row="2" Background="DarkSeaGreen"  Margin="5" Padding="20,0" Command="{ Binding StartSearchButton_Click}" >Start search</Button>
+        <Button Grid.Row="3" x:Name="StopButton" Background="Red"  Margin="5" Padding="20,0" Command="{ Binding StopButton_Click}">Stop searching</Button>
+        <ProgressBar Grid.Row="4" Name="copyProgressBar" 
+                     MinWidth="100" Margin="5" Value="{Binding Progress}" 
+                     Foreground="Orange">
+            <ProgressBar.Style>
+                <Style TargetType="ProgressBar">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Value}" Value="100">
+                            <Setter Property="Foreground" Value="Green"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ProgressBar.Style>
+        </ProgressBar>
+        <ListBox Name="operationsList" Grid.Row="5" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding FilesWithFoundWords}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel>
+                        <Label>File name:</Label>
+                        <Label FontWeight="Bold" Content="{Binding FileNamePath}"></Label>
+                        <Label>Path:</Label>
+                        <Label FontWeight="Bold" Content="{Binding PathFolder}"></Label>
+                        <Label>Number of occurrences:</Label>
+                        <Label FontWeight="Bold" Content="{Binding NumberOfOccurrences}"></Label>
+                        <Label FontWeight="Bold" Content="{Binding Progress}"></Label>
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Grid.Row="6" x:Name="SaveResultButton" Background="Blue" Margin="5" Padding="20,0" Command="{ Binding SaveResultButton_Click}">Save result</Button>
+    </Grid>
+</Window>

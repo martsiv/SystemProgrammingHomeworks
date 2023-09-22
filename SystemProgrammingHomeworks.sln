@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThreadsL", "Threads\Threads
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "02.1_Tasks_Text_analizer", "02.1_Tasks_Text_analizer\02.1_Tasks_Text_analizer.csproj", "{3CC6D5B8-5EFF-41D8-8F25-D33D25798DB1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{6CC1A7C9-81D2-4A77-AE7C-7578DECAB3AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "02.2_Tasks_Find_duplicates", "02.2_Tasks_Find_duplicates\02.2_Tasks_Find_duplicates.csproj", "{FBC3B1AC-B204-41D7-8EC6-376A698608A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "02.2_Tasks_Find_duplicates", "02.2_Tasks_Find_duplicates\02.2_Tasks_Find_duplicates.csproj", "{FBC3B1AC-B204-41D7-8EC6-376A698608A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FindingWordInDirectory", "FindingWordInDirectory\FindingWordInDirectory.csproj", "{8402685A-D7E5-4080-BC37-02908567F7F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,14 +25,14 @@ Global
 		{3CC6D5B8-5EFF-41D8-8F25-D33D25798DB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CC6D5B8-5EFF-41D8-8F25-D33D25798DB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CC6D5B8-5EFF-41D8-8F25-D33D25798DB1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6CC1A7C9-81D2-4A77-AE7C-7578DECAB3AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CC1A7C9-81D2-4A77-AE7C-7578DECAB3AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CC1A7C9-81D2-4A77-AE7C-7578DECAB3AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CC1A7C9-81D2-4A77-AE7C-7578DECAB3AC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FBC3B1AC-B204-41D7-8EC6-376A698608A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FBC3B1AC-B204-41D7-8EC6-376A698608A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBC3B1AC-B204-41D7-8EC6-376A698608A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBC3B1AC-B204-41D7-8EC6-376A698608A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8402685A-D7E5-4080-BC37-02908567F7F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8402685A-D7E5-4080-BC37-02908567F7F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8402685A-D7E5-4080-BC37-02908567F7F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8402685A-D7E5-4080-BC37-02908567F7F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
