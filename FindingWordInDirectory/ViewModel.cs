@@ -25,11 +25,11 @@ namespace FindingWordInDirectory
         public ObservableCollection<FoundWord> FilesWithFoundWords { get; set; }
         CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
         CancellationToken token;
+        bool isDisposedToken = true;
         public string DirectoryName { get; set; }
         public string Keyword { get; set; }
-        bool isDisposedToken = true;
-
         public int Progress { get; set; }
+
         public ViewModel()
         {
             FilesWithFoundWords = new ObservableCollection<FoundWord>();
@@ -39,6 +39,7 @@ namespace FindingWordInDirectory
             saveResultButton_Click = new((o) => SaveResult(), (с) => Progress == 100);
         }
 
+        #region Command Choose directory
         private readonly RelayCommand chooseDirectoryButton_Click;
         public ICommand ChooseDirectoryButton_Click => chooseDirectoryButton_Click;
         public void ChooseDirectory()
@@ -49,7 +50,9 @@ namespace FindingWordInDirectory
                     DirectoryName = dialog.SelectedPath;
             }
         }
+        #endregion
 
+        #region Command Start search
         private readonly RelayCommand startSearchButton_Click;
         public ICommand StartSearchButton_Click => startSearchButton_Click;
         private async Task StartSearchAsync()
@@ -60,47 +63,43 @@ namespace FindingWordInDirectory
             cancelTokenSource = new CancellationTokenSource();
             token = cancelTokenSource.Token;
             isDisposedToken = false;
+            // Отримуємо всі файли *.txt в директорії та в її піддиректоріях
+            string[] txtFiles = Directory.GetFiles(DirectoryName, "*.txt", SearchOption.AllDirectories);
+
+            int totalFiles = txtFiles.Length;
+            int processedFiles = 0;
+
             try
             {
-                await Task.Run(async () =>
-                {
-                    // Отримуємо всі файли *.txt в директорії та в її піддиректоріях
-                    string[] txtFiles = Directory.GetFiles(DirectoryName, "*.txt", SearchOption.AllDirectories);
-
-                    int totalFiles = txtFiles.Length;
-                    int processedFiles = 0;
-
-                    foreach (string filePath in txtFiles)
+                //Дістаємо текст з файлів
+                var TasksfilesWithText = txtFiles.AsParallel().WithCancellation(token).
+                    //Select(async (fileName) => new FileNameText { FileName = fileName, Text = await File.ReadAllTextAsync(fileName, token)});
+                    Select(async (fileName, index) =>
                     {
-                        await Task.Delay(1000);
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-                        // Читаємо вміст файлу
-                        string fileContents = File.ReadAllText(filePath);
+                        var text = await File.ReadAllTextAsync(fileName, token);
+                        Progress = (int)((double)(index + 1) / txtFiles.Length * 50);
+                        return new FileNameText { FileName = fileName, Text = text };
+                    });
+                var filesWithText = await Task.WhenAll(TasksfilesWithText);
+                //Залишаємо лише ті, які містять ключове слово
+                var foundWordExamples = filesWithText.AsParallel().WithCancellation(token).
+                   Where(fileNameText => 1 < fileNameText.Text.Split(new string[] { Keyword }, StringSplitOptions.RemoveEmptyEntries).Length - 1).
+                   Select(fileNameText => new FoundWord 
+                   {
+                           FileName = fileNameText.FileName,
+                           PathFolder = Path.GetDirectoryName(fileNameText.FileName),
+                           NumberOfOccurrences = fileNameText.Text.Split(new string[] { Keyword }, StringSplitOptions.RemoveEmptyEntries).Length - 1
+                   }).ToList();
 
-                        // Рахуємо кількість входжень ключового слова
-                        int numberOfOccurrences = await CountOccurrences(fileContents, Keyword);
-
-                        if (numberOfOccurrences > 0)
-                        {
-                            FoundWord foundWord = new FoundWord
-                            {
-                                FileName = filePath,
-                                PathFolder = Path.GetDirectoryName(filePath),
-                                NumberOfOccurrences = numberOfOccurrences
-                            };
-                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                FilesWithFoundWords.Add(foundWord);
-                            });
-                        }
-
-                        processedFiles++;
-                        // Оновлюємо властивість Progress, щоб відобразити прогрес
-
-                        Progress = (int)((double)processedFiles / totalFiles * 100);
-                    }
-                });
+                //Закидаємо ті, які містять 1< входження
+                foreach (var foundWord in foundWordExamples)
+                {
+                await Task.Delay(2000);
+                    if (token.IsCancellationRequested)
+                        token.ThrowIfCancellationRequested();
+                    FilesWithFoundWords.Add(foundWord);
+                    Progress = 50 + (int)(((double)FilesWithFoundWords.Count / foundWordExamples.Count) * 50); // Оновлюємо прогрес
+                }
             }
             catch (OperationCanceledException ex)
             {
@@ -112,17 +111,18 @@ namespace FindingWordInDirectory
                 isDisposedToken = true;
             }
         }
-        private async Task<int> CountOccurrences(string text, string keyword)
-        {
-            // Використовуємо LINQ для підрахунку кількості входжень ключового слова
-            return text.Split(new string[] { keyword }, StringSplitOptions.RemoveEmptyEntries).Length - 1;
-        }
+        #endregion
+
+        #region Command Stop
         private readonly RelayCommand stopButton_Click;
         public ICommand StopButton_Click => stopButton_Click;
         private void Stop()
         {
             cancelTokenSource.Cancel();
         }
+        #endregion
+
+        #region Command Save result
         private readonly RelayCommand saveResultButton_Click;
         public ICommand SaveResultButton_Click => saveResultButton_Click;
         private void SaveResult()
@@ -140,6 +140,17 @@ namespace FindingWordInDirectory
                 writer.WriteLine("End of searching\n");
             }
             MessageBox.Show("Done");
+        }
+        #endregion
+    }
+    struct FileNameText
+    {
+        public string FileName { get; set; }
+        public string Text { get; set; }
+        public FileNameText(string fileName, string text)
+        {
+            FileName = fileName;
+            Text = text;
         }
     }
 }
