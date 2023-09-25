@@ -34,7 +34,7 @@
         <Button Grid.Row="2" Background="DarkSeaGreen"  Margin="5" Padding="20,0" Command="{ Binding StartSearchButton_Click}" >Start search</Button>
         <Button Grid.Row="3" x:Name="StopButton" Background="Red"  Margin="5" Padding="20,0" Command="{ Binding StopButton_Click}">Stop searching</Button>
         <ProgressBar Grid.Row="4" Name="copyProgressBar" 
-                     MinWidth="100" Margin="5" Value="{Binding Progress}" 
+                     MinWidth="100" Margin="5" Maximum="100" Value="{Binding Progress}" 
                      Foreground="Orange">
             <ProgressBar.Style>
                 <Style TargetType="ProgressBar">

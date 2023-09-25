@@ -84,21 +84,27 @@ namespace FindingWordInDirectory
                 //Залишаємо лише ті, які містять ключове слово
                 var foundWordExamples = filesWithText.AsParallel().WithCancellation(token).
                    Where(fileNameText => 1 < fileNameText.Text.Split(new string[] { Keyword }, StringSplitOptions.RemoveEmptyEntries).Length - 1).
-                   Select(fileNameText => new FoundWord 
+                   Select(fileNameText => new FoundWord
                    {
-                           FileName = fileNameText.FileName,
-                           PathFolder = Path.GetDirectoryName(fileNameText.FileName),
-                           NumberOfOccurrences = fileNameText.Text.Split(new string[] { Keyword }, StringSplitOptions.RemoveEmptyEntries).Length - 1
+                       FileName = fileNameText.FileName,
+                       PathFolder = Path.GetDirectoryName(fileNameText.FileName),
+                       NumberOfOccurrences = fileNameText.Text.Split(new string[] { Keyword }, StringSplitOptions.RemoveEmptyEntries).Length - 1
                    }).ToList();
 
                 //Закидаємо ті, які містять 1< входження
                 foreach (var foundWord in foundWordExamples)
                 {
-                await Task.Delay(2000);
+                    await Task.Delay(2000);
                     if (token.IsCancellationRequested)
                         token.ThrowIfCancellationRequested();
                     FilesWithFoundWords.Add(foundWord);
-                    Progress = 50 + (int)(((double)FilesWithFoundWords.Count / foundWordExamples.Count) * 50); // Оновлюємо прогрес
+                    //Пробував використати TaskScheduler для оновлення прогресу
+                    await Task.Factory.StartNew(async () =>
+                    {
+                        Progress = 50 + (int)(((double)FilesWithFoundWords.Count / foundWordExamples.Count) * 50);
+                    }, token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+
+                    //Progress = 50 + (int)(((double)FilesWithFoundWords.Count / foundWordExamples.Count) * 50); // Оновлюємо прогрес
                 }
             }
             catch (OperationCanceledException ex)
